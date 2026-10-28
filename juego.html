@@ -4,32 +4,85 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Química en Pareja</title>
+<script>
+    // Aplicar el tema antes de pintar para evitar parpadeo
+    (function () {
+        let t = null;
+        try { t = localStorage.getItem('quimica-pareja-tema'); } catch {}
+        if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = t;
+    })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+    /* Modo oscuro (por defecto) */
     :root {
-        --bg1: #1a0f35;
-        --bg2: #3b1466;
-        --card: rgba(255,255,255,0.07);
-        --card-border: rgba(255,255,255,0.12);
-        --text: #fff;
-        --muted: #c9bde6;
-        --pink: #ff3c7d;
-        --orange: #ff8a3d;
-        --yellow: #ffc93c;
-        --teal: #29e3c1;
-        --violet: #7b3cff;
-        --rim: #2a1850;
-        --radius: 20px;
+        color-scheme: dark;
+        --bg1: #040a17;
+        --bg2: #0b1a36;
+        --glow: rgba(74,139,224,0.22);
+        --card: rgba(255,255,255,0.075);
+        --card-border: rgba(255,255,255,0.18);
+        --inset: rgba(0,0,0,0.42);
+        --field: rgba(255,255,255,0.09);
+        --btn: rgba(255,255,255,0.11);
+        --btn-hover: rgba(255,255,255,0.19);
+        --border: rgba(255,255,255,0.17);
+        --border-strong: rgba(255,255,255,0.3);
+        --track: rgba(255,255,255,0.14);
+        --placeholder: rgba(255,255,255,0.48);
+        --shadow: 0 10px 28px rgba(0,0,0,0.4);
+        --text: #f6f9fd;
+        --muted: #bccadc;
+        --primary: #4f92e8;
+        --primary-light: #a3c8f6;
+        --accent: #3fc6b2;
+        --gold: #f2c55e;
+        --end-l: #b6d4f5;
+        --end-r: #f6c4b1;
+        --z5: #d64545;
+        --z3: #ec8a3c;
+        --z1: #f2c14e;
+        --rim: #14223a;
+        --radius: 16px;
+    }
+    /* Modo claro: mismos tonos, más luminosos */
+    :root[data-theme="light"] {
+        color-scheme: light;
+        --bg1: #f1f5fb;
+        --bg2: #dce6f4;
+        --glow: rgba(74,139,224,0.18);
+        --card: #ffffff;
+        --card-border: rgba(20,45,90,0.10);
+        --inset: #f0f4fa;
+        --field: #f7f9fc;
+        --btn: #edf2f9;
+        --btn-hover: #e0e8f3;
+        --border: rgba(20,45,90,0.12);
+        --border-strong: rgba(20,45,90,0.24);
+        --track: rgba(20,45,90,0.1);
+        --placeholder: rgba(20,35,56,0.4);
+        --shadow: 0 8px 24px rgba(20,45,90,0.08);
+        --text: #172338;
+        --muted: #56677f;
+        --primary: #2f6fc4;
+        --primary-light: #2a64b3;
+        --accent: #24998a;
+        --gold: #a8740a;
+        --end-l: #2f6fc4;
+        --end-r: #c0603f;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; }
     body {
-        font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.45;
         color: var(--text);
-        background: radial-gradient(circle at 20% 0%, #5a1d8f 0%, transparent 50%),
-                    radial-gradient(circle at 100% 100%, #7a1450 0%, transparent 45%),
-                    linear-gradient(160deg, var(--bg1), var(--bg2));
+        background: radial-gradient(circle at 15% 0%, var(--glow), transparent 55%),
+                    linear-gradient(165deg, var(--bg1), var(--bg2));
+        transition: background-color .3s, color .3s;
         background-attachment: fixed;
         min-height: 100dvh;
         -webkit-tap-highlight-color: transparent;
@@ -37,7 +90,7 @@
     .hidden { display: none !important; }
     .screen { max-width: 1060px; margin: 0 auto; padding: 16px 16px 40px; }
 
-    h1, h2, h3 { margin: 0; line-height: 1.15; }
+    h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
     p { margin: 0; }
 
     .card {
@@ -45,46 +98,66 @@
         border: 1px solid var(--card-border);
         border-radius: var(--radius);
         padding: 18px;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        box-shadow: var(--shadow);
     }
 
     /* ---------- Botones ---------- */
     .btn {
         font: inherit;
         font-weight: 600;
-        border: none;
-        border-radius: 14px;
-        padding: 11px 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 16px;
         cursor: pointer;
         color: var(--text);
-        background: rgba(255,255,255,0.1);
-        transition: transform .1s ease, filter .2s ease, opacity .2s;
+        background: var(--btn);
+        transition: background .15s, transform .1s, opacity .2s, filter .15s;
     }
-    .btn:hover { filter: brightness(1.12); }
-    .btn:active { transform: scale(0.97); }
+    .btn:hover { background: var(--btn-hover); }
+    .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-    .btn.primary {
-        background: linear-gradient(135deg, var(--pink), #ff6a3d);
-        box-shadow: 0 6px 0 #a3164a, 0 10px 20px rgba(255,60,125,0.35);
-    }
-    .btn.primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #a3164a; }
-    .btn.big { font-size: 1.15rem; padding: 15px 22px; width: 100%; }
-    .btn.ghost { background: transparent; border: 2px dashed rgba(255,255,255,0.25); }
+    .btn.primary { color: #fff; background: var(--primary); border-color: transparent; box-shadow: 0 4px 14px rgba(61,127,214,0.35); }
+    .btn.primary:hover { background: var(--primary); filter: brightness(1.1); }
+    .btn.big { font-size: 1.08rem; padding: 14px 20px; width: 100%; }
+    .btn.ghost { background: transparent; border: 1px dashed var(--border-strong); }
     .btn.icon { padding: 8px 12px; }
+    .setup-top { display: flex; justify-content: flex-end; max-width: 640px; margin: 0 auto; }
+    .topbar-actions { display: flex; gap: 8px; }
 
     /* ---------- Setup ---------- */
-    .hero { text-align: center; padding: 18px 0 22px; }
-    .logo { font-size: 3rem; animation: beat 1.6s infinite; display: inline-block; }
-    @keyframes beat { 0%,100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+    .hero { text-align: center; padding: 22px 0 24px; }
+    /* Logo: dos puños chocando */
+    .logo {
+        position: relative; width: 132px; height: 96px; margin: 0 auto 14px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 48px;
+        background: radial-gradient(circle, color-mix(in srgb, var(--gold) 30%, transparent), transparent 70%);
+    }
+    .fist { font-size: 3.2rem; line-height: 1; display: inline-block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+    .fist.l { animation: bumpL 2.4s ease-in-out infinite; }
+    .fist.r { animation: bumpR 2.4s ease-in-out infinite; }
+    .spark {
+        position: absolute; left: 50%; top: 2px; font-size: 1.6rem;
+        transform: translateX(-50%) scale(0); animation: spark 2.4s ease-out infinite;
+    }
+    @keyframes bumpL { 0%, 100% { transform: translateX(-16px) rotate(-8deg); } 45%, 55% { transform: translateX(2px) rotate(0); } }
+    @keyframes bumpR { 0%, 100% { transform: translateX(16px) rotate(8deg); } 45%, 55% { transform: translateX(-2px) rotate(0); } }
+    @keyframes spark { 0%, 44% { transform: translateX(-50%) scale(0); opacity: 0; } 52% { transform: translateX(-50%) scale(1.25); opacity: 1; } 75%, 100% { transform: translateX(-50%) translateY(-10px) scale(.8); opacity: 0; } }
     .hero h1 {
-        font-size: clamp(2rem, 6vw, 3rem);
-        background: linear-gradient(90deg, var(--yellow), var(--pink), var(--violet));
+        font-size: clamp(2.2rem, 7vw, 3.3rem); font-weight: 800; letter-spacing: -0.02em;
+        background: linear-gradient(90deg, var(--primary-light), var(--accent) 50%, var(--gold));
         -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .hero p { color: var(--muted); margin-top: 6px; }
+    .hero .tagline {
+        display: inline-block; margin-top: 10px; padding: 4px 12px; border-radius: 99px;
+        font-size: .85rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+        color: var(--gold); background: color-mix(in srgb, var(--gold) 14%, transparent);
+        border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+    }
+    .topbar .mini-logo { font-size: 1.2rem; }
+    .hero p { color: var(--muted); margin-top: 8px; max-width: 480px; margin-inline: auto; }
     .setup-grid { display: grid; gap: 16px; max-width: 640px; margin: 0 auto; }
-    .card h2 { font-size: 1.2rem; margin-bottom: 12px; }
+    .card h2 { font-size: 1.1rem; margin-bottom: 12px; }
     .sub { color: var(--muted); font-size: .9rem; }
 
     .team-card {
@@ -92,68 +165,83 @@
         grid-template-columns: 1fr 1fr auto;
         gap: 8px;
         padding: 12px;
-        border-radius: 14px;
-        background: rgba(0,0,0,0.18);
+        border-radius: 12px;
+        background: var(--inset);
         margin-bottom: 10px;
-        border-left: 5px solid var(--c, var(--pink));
+        border-left: 4px solid var(--c, var(--primary));
     }
     .team-card .team-name { grid-column: 1 / 3; }
     input[type=text], textarea {
         font: inherit;
         width: 100%;
         color: var(--text);
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 10px;
+        background: var(--field);
+        border: 1px solid var(--border-strong);
+        border-radius: 8px;
         padding: 10px 12px;
         outline: none;
     }
-    input[type=text]:focus, textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(41,227,193,0.25); }
-    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.4); }
+    input[type=text]:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(61,127,214,0.25); }
+    input::placeholder, textarea::placeholder { color: var(--placeholder); }
     .team-name { font-weight: 600; }
-    .remove-team { grid-row: 1 / 3; grid-column: 3; align-self: center; background: rgba(255,60,125,0.15); }
+    .remove-team { grid-row: 1 / 3; grid-column: 3; align-self: center; }
 
     .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; flex-wrap: wrap; }
     .row + .sub { margin-top: -4px; margin-bottom: 6px; }
-    .stepper { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 4px; }
-    .stepper .btn { width: 38px; height: 38px; padding: 0; font-size: 1.2rem; }
-    .stepper output { min-width: 92px; text-align: center; font-weight: 700; font-size: 1.1rem; }
-    .seg { display: flex; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 4px; gap: 4px; }
-    .seg .btn { background: transparent; padding: 8px 12px; }
-    .seg .btn.on { background: var(--violet); }
+    .stepper { display: flex; align-items: center; gap: 6px; background: var(--inset); border-radius: 10px; padding: 4px; }
+    .stepper .btn { width: 36px; height: 36px; padding: 0; font-size: 1.15rem; }
+    .stepper output { min-width: 92px; text-align: center; font-weight: 600; }
+    .seg { display: flex; background: var(--inset); border-radius: 10px; padding: 4px; gap: 4px; }
+    .seg .btn { background: transparent; border-color: transparent; padding: 7px 12px; }
+    .seg .btn.on { background: var(--primary); color: #fff; }
 
-    details.card summary { cursor: pointer; font-weight: 600; font-size: 1.1rem; list-style: none; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+        font: inherit; font-size: .9rem; font-weight: 500; cursor: pointer;
+        padding: 7px 12px; border-radius: 99px;
+        color: var(--muted); background: transparent; border: 1px solid var(--border-strong);
+        transition: background .15s, color .15s, border-color .15s;
+    }
+    .chip:not(.on) { text-decoration: line-through; opacity: .75; }
+    .chip.on { color: var(--text); background: color-mix(in srgb, var(--primary) 20%, transparent); border-color: var(--primary); }
+    .chip small { opacity: .7; margin-left: 4px; }
+
+    details.card summary { cursor: pointer; font-weight: 600; font-size: 1.05rem; list-style: none; }
+    details.card summary::-webkit-details-marker { display: none; }
     details.card summary::before { content: '▸ '; display: inline-block; transition: transform .2s; }
     details[open].card summary::before { transform: rotate(90deg); }
     details.card[open] summary { margin-bottom: 10px; }
-    textarea { resize: vertical; min-height: 180px; font-size: .95rem; }
+    textarea { resize: vertical; min-height: 220px; font-size: .92rem; }
+    .rules { padding-left: 20px; }
     .rules li { margin-bottom: 6px; color: var(--muted); }
     .rules b { color: var(--text); }
-    .resume { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-color: var(--teal); }
+    .resume { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-color: var(--accent); }
+    code { background: var(--inset); padding: 1px 6px; border-radius: 4px; font-size: .85rem; }
 
     /* ---------- Juego ---------- */
     .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-    .topbar h1 { font-size: 1.3rem; }
+    .topbar h1 { font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
     .round-info { text-align: center; flex: 1; }
-    .round-info .r { font-weight: 700; font-size: 1.05rem; }
-    .progress { height: 6px; border-radius: 6px; background: rgba(255,255,255,0.12); overflow: hidden; margin-top: 4px; max-width: 260px; margin-inline: auto; }
-    .progress > div { height: 100%; background: linear-gradient(90deg, var(--teal), var(--yellow)); transition: width .5s; }
+    .round-info .r { font-weight: 600; }
+    .progress { height: 5px; border-radius: 5px; background: var(--track); overflow: hidden; margin-top: 5px; max-width: 260px; margin-inline: auto; }
+    .progress > div { height: 100%; background: var(--primary); transition: width .5s; }
 
     .layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
     @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .topbar h1 .txt { display: none; } }
 
     .board { text-align: center; }
     .turn-banner {
-        display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
-        padding: 10px 14px; border-radius: 14px; margin-bottom: 14px;
-        background: linear-gradient(90deg, color-mix(in srgb, var(--c) 35%, transparent), transparent);
-        border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+        padding: 10px 14px; border-radius: 12px; margin-bottom: 16px;
+        background: color-mix(in srgb, var(--c) 14%, transparent);
+        border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
     }
-    .turn-banner .team { font-weight: 700; font-size: 1.1rem; }
-    .role { font-size: .9rem; padding: 3px 10px; border-radius: 99px; background: rgba(0,0,0,0.25); }
+    .turn-banner .team { font-weight: 700; font-size: 1.05rem; color: color-mix(in srgb, var(--c) 70%, var(--text)); }
+    .role { font-size: .9rem; padding: 3px 10px; border-radius: 99px; background: var(--inset); }
 
-    .category .cat-label { text-transform: uppercase; letter-spacing: .15em; font-size: .75rem; color: var(--muted); }
-    .category h2 { font-size: clamp(1.6rem, 5vw, 2.3rem); margin: 2px 0 10px; color: var(--yellow); text-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+    .category .cat-label { text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; font-weight: 600; color: var(--primary-light); }
+    .category h2 { font-size: clamp(1.5rem, 4.6vw, 2.1rem); font-weight: 700; margin: 4px 0 12px; }
 
     .dial-wrap { position: relative; max-width: 540px; margin: 0 auto; }
     #dial { width: 100%; display: block; user-select: none; -webkit-user-select: none; }
@@ -165,84 +253,87 @@
     #needle { transition: transform .15s ease-out, opacity .3s; }
     #needle.dim { opacity: .2; }
     #needle.dragging { transition: none; }
-    .z1 { fill: var(--yellow); }
-    .z3 { fill: var(--orange); }
-    .z5 { fill: var(--pink); }
+    .z1 { fill: var(--z1); }
+    .z3 { fill: var(--z3); }
+    .z5 { fill: var(--z5); }
     #zone path { stroke: #fff; stroke-width: 1.5; }
-    .zlabel { font: 700 12px 'Fredoka', sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: rgba(0,0,0,0.35); stroke-width: 3; }
-    .tick { stroke: rgba(42,24,80,0.35); stroke-width: 2; }
-    .cover-q { font: 700 90px 'Fredoka', sans-serif; fill: rgba(255,255,255,0.9); text-anchor: middle; }
-    .cover-t { font: 600 14px 'Fredoka', sans-serif; fill: rgba(255,255,255,0.7); text-anchor: middle; letter-spacing: 4px; }
+    .zlabel { font: 700 12px 'Inter', sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: rgba(0,0,0,0.35); stroke-width: 3; }
+    .tick { stroke: rgba(20,34,58,0.3); stroke-width: 2; }
+    .cover-q { font: 700 80px 'Inter', sans-serif; fill: rgba(255,255,255,0.85); text-anchor: middle; }
+    .cover-t { font: 600 13px 'Inter', sans-serif; fill: rgba(255,255,255,0.6); text-anchor: middle; letter-spacing: 4px; }
 
     .guess-value {
         position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%);
-        font-weight: 700; font-size: 1.4rem; color: var(--rim);
-        background: #fff; border-radius: 12px; padding: 0 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        font-weight: 700; font-size: 1.3rem; color: var(--rim);
+        background: #fff; border-radius: 8px; padding: 0 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.25);
         pointer-events: none; transition: opacity .2s;
     }
     .ends { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; font-weight: 600; font-size: .95rem; }
     .ends span { max-width: 48%; }
-    .ends .l { color: #9ad7ff; text-align: left; }
-    .ends .r { color: #ffb0c8; text-align: right; }
+    .ends .l { color: var(--end-l); text-align: left; }
+    .ends .r { color: var(--end-r); text-align: right; }
+    .same-cat { font-size: .9rem !important; color: var(--muted); }
 
-    .phase { margin-top: 18px; display: grid; gap: 12px; animation: fadeUp .35s ease; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .phase { margin-top: 18px; display: grid; gap: 12px; animation: fadeUp .3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     .phase p { font-size: 1.05rem; }
-    .warn { color: var(--yellow); font-weight: 600; }
+    .warn { color: var(--gold); font-weight: 600; }
     .actions { display: grid; gap: 10px; }
     .hint { color: var(--muted); }
     .clue {
-        font-size: 1.4rem; font-weight: 700; padding: 10px 14px; border-radius: 14px;
-        background: rgba(41,227,193,0.15); border: 1px solid rgba(41,227,193,0.5);
+        font-size: 1.35rem; font-weight: 700; padding: 10px 14px; border-radius: 12px;
+        background: rgba(54,179,160,0.12); border: 1px solid rgba(54,179,160,0.45);
     }
     .field { display: grid; gap: 6px; text-align: left; }
     .field span { font-size: .9rem; color: var(--muted); }
-    input[type=range] { width: 100%; accent-color: var(--teal); height: 28px; }
+    input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; }
 
-    .result { padding: 14px; border-radius: 16px; background: rgba(0,0,0,0.2); animation: pop .5s .9s both cubic-bezier(.3,1.6,.5,1); }
-    @keyframes pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
-    .result .pts { font-size: 3.2rem; font-weight: 700; line-height: 1; }
-    .result .msg { font-size: 1.2rem; font-weight: 600; margin-top: 4px; }
+    .result { padding: 14px; border-radius: 12px; background: var(--inset); animation: pop .45s .9s both cubic-bezier(.3,1.4,.5,1); }
+    @keyframes pop { from { opacity: 0; transform: scale(.75); } to { opacity: 1; transform: scale(1); } }
+    .result .pts { font-size: 3rem; font-weight: 700; line-height: 1; }
+    .result .msg { font-size: 1.15rem; font-weight: 600; margin-top: 6px; }
     .result .detail { color: var(--muted); margin-top: 6px; font-size: .95rem; }
-    .pts-5 .pts { color: var(--pink); } .pts-3 .pts { color: var(--orange); } .pts-1 .pts { color: var(--yellow); } .pts-0 .pts { color: #9a8fb8; }
+    .pts-5 .pts { color: var(--z5); } .pts-3 .pts { color: var(--z3); } .pts-1 .pts { color: var(--z1); } .pts-0 .pts { color: #7d8ca3; }
 
     /* Marcador */
     .side { display: grid; gap: 16px; }
-    .scoreboard h3, .history summary { font-size: 1.05rem; }
+    .scoreboard h3, .history summary { font-size: 1rem; }
     .score-list { display: grid; gap: 8px; margin-top: 10px; }
     .score-item {
-        padding: 10px 12px; border-radius: 14px; background: rgba(0,0,0,0.2);
-        border-left: 5px solid var(--c); transition: transform .3s, box-shadow .3s;
+        padding: 10px 12px; border-radius: 10px; background: var(--inset);
+        border-left: 4px solid var(--c); transition: background .3s, box-shadow .3s;
     }
-    .score-item.current { background: color-mix(in srgb, var(--c) 22%, rgba(0,0,0,0.2)); box-shadow: 0 0 0 2px var(--c); transform: scale(1.02); }
+    .score-item.current { background: color-mix(in srgb, var(--c) 16%, var(--inset)); box-shadow: 0 0 0 1px var(--c); }
     .score-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .score-name { font-weight: 700; }
-    .score-num { font-size: 1.6rem; font-weight: 700; }
+    .score-name { font-weight: 600; }
+    .rank { display: inline-block; min-width: 26px; color: var(--muted); font-weight: 700; }
+    .score-num { font-size: 1.5rem; font-weight: 700; display: inline-block; }
     .score-players { font-size: .85rem; color: var(--muted); }
     .bump { animation: bump .6s 1s; }
-    @keyframes bump { 40% { transform: scale(1.5); color: var(--yellow); } }
-    .goal-bar { height: 5px; border-radius: 5px; background: rgba(255,255,255,0.12); margin-top: 6px; overflow: hidden; }
+    @keyframes bump { 40% { transform: scale(1.35); color: var(--gold); } }
+    .goal-bar { height: 4px; border-radius: 4px; background: var(--track); margin-top: 6px; overflow: hidden; }
     .goal-bar > div { height: 100%; background: var(--c); transition: width .6s; }
 
     .history ol { margin: 10px 0 0; padding-left: 0; list-style: none; display: grid; gap: 6px; max-height: 320px; overflow: auto; }
-    .history li { font-size: .88rem; padding: 6px 8px; border-radius: 10px; background: rgba(0,0,0,0.18); border-left: 4px solid var(--c); }
-    .history li b { color: var(--yellow); }
+    .history li { font-size: .88rem; padding: 7px 9px; border-radius: 8px; background: var(--inset); border-left: 3px solid var(--c); }
+    .history li b { color: var(--gold); }
     .empty { color: var(--muted); font-size: .9rem; }
-    .legend { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px; font-size: .85rem; color: var(--muted); }
+    .legend { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 12px; font-size: .85rem; color: var(--muted); }
     .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
 
     /* Final */
     .end-wrap { max-width: 560px; margin: 0 auto; text-align: center; display: grid; gap: 16px; }
-    .trophy { font-size: 4.5rem; animation: beat 1.6s infinite; }
+    .trophy { font-size: 4rem; animation: rise .8s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
     .podium { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-    .podium li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: rgba(0,0,0,0.22); border-left: 6px solid var(--c); text-align: left; }
-    .podium .pos { font-size: 1.8rem; width: 42px; text-align: center; }
+    .podium li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--inset); border-left: 5px solid var(--c); text-align: left; }
+    .podium .pos { font-size: 1.7rem; width: 42px; text-align: center; }
     .podium .info { flex: 1; }
     .podium .stats { font-size: .85rem; color: var(--muted); }
-    .podium .big { font-size: 2rem; font-weight: 700; }
-    .podium li.first { background: linear-gradient(90deg, rgba(255,201,60,0.3), rgba(0,0,0,0.2)); }
+    .podium .big { font-size: 1.9rem; font-weight: 700; }
+    .podium li.first { background: linear-gradient(90deg, rgba(232,182,76,0.25), var(--inset)); }
 
-    .confetti { position: fixed; top: -12px; width: 10px; height: 14px; z-index: 999; pointer-events: none; animation: fall linear forwards; }
+    .confetti { position: fixed; top: -12px; width: 9px; height: 13px; z-index: 999; pointer-events: none; animation: fall linear forwards; }
     @keyframes fall { to { transform: translateY(110vh) rotate(800deg); } }
 
     @media (prefers-reduced-motion: reduce) {
@@ -252,12 +343,17 @@
 </head>
 <body>
 
+
 <!-- ================= CONFIGURACIÓN ================= -->
 <section id="setup" class="screen">
+    <div class="setup-top"><button class="btn icon" data-act="toggleTheme"></button></div>
     <div class="hero">
-        <div class="logo">💞</div>
+        <div class="logo" aria-hidden="true">
+            <span class="fist l">🤜</span><span class="fist r">🤛</span><span class="spark">💥</span>
+        </div>
         <h1>Química en Pareja</h1>
-        <p>¿Qué tan conectados están? Uno ve la zona, da una pista… y el otro tiene que adivinar dónde cae.</p>
+        <div class="tagline">El juego de la sintonía</div>
+        <p>¿Qué tan en sintonía están? Uno ve la zona y da una pista; el otro tiene que adivinar dónde cae.</p>
     </div>
 
     <div class="setup-grid">
@@ -305,45 +401,53 @@
             </div>
         </div>
 
-        <details class="card">
-            <summary>3. Categorías</summary>
-            <p class="sub" style="margin-bottom:8px">Una por línea. Opcionalmente podés indicar qué significa cada extremo:<br><code>Categoría | extremo 0 | extremo 100</code></p>
-            <textarea id="catsText" spellcheck="false"></textarea>
-            <button class="btn ghost" style="margin-top:8px" data-act="resetCats">Restaurar categorías por defecto</button>
-        </details>
+        <div class="card">
+            <h2>3. Temas</h2>
+            <p class="sub" style="margin-bottom:10px" id="themeInfo"></p>
+            <div class="chips" id="themeChips"></div>
+            <details style="margin-top:14px">
+                <summary class="sub" style="cursor:pointer">Editar categorías</summary>
+                <p class="sub" style="margin:8px 0">Una por línea: <code>Categoría | extremo 0 | extremo 100</code>. Las líneas que empiezan con <code>#</code> definen el tema.</p>
+                <textarea id="catsText" spellcheck="false"></textarea>
+                <button class="btn ghost" style="margin-top:8px" data-act="resetCats">Restaurar categorías por defecto</button>
+            </details>
+        </div>
 
         <details class="card">
             <summary>¿Cómo se juega?</summary>
             <ol class="rules">
-                <li>Se muestra una <b>categoría</b> (ej: comidas). La izquierda es <b>0</b> y la derecha <b>100</b>.</li>
+                <li>Se muestra una <b>categoría</b> con dos extremos. La izquierda es <b>0</b> y la derecha <b>100</b>.</li>
                 <li>Quien tiene el turno <b>gira la ruleta</b> sin que su pareja mire y ve dónde quedó la zona de puntos.</li>
-                <li>Cierra la tapa y dice en voz alta algo de esa categoría que crea que encaja en esa posición.</li>
+                <li>Cierra la tapa y dice algo de esa categoría que crea que encaja en esa posición.</li>
                 <li>Su pareja <b>mueve la aguja</b> hasta donde cree que va y confirma.</li>
                 <li>Se abre la tapa: centro <b>5 pts</b>, al lado <b>3 pts</b>, bordes <b>1 pt</b>, afuera 0.</li>
-                <li>En la siguiente ronda los roles de la pareja se invierten. ¡Gana la pareja con más puntos!</li>
+                <li>En la siguiente ronda los roles se invierten. ¡Gana la pareja con más puntos!</li>
             </ol>
         </details>
 
-        <button class="btn primary big" data-act="start">¡Empezar a jugar! 🎡</button>
+        <button class="btn primary big" data-act="start">Empezar partida</button>
     </div>
 </section>
 
 <!-- ================= JUEGO ================= -->
 <section id="game" class="screen hidden">
     <header class="topbar">
-        <h1>💞 Química</h1>
+        <h1><span class="mini-logo" aria-hidden="true">🤜🤛</span><span class="txt">Química en Pareja</span></h1>
         <div class="round-info">
             <div class="r" id="roundText"></div>
             <div class="progress"><div id="progressBar"></div></div>
         </div>
-        <button class="btn icon" data-act="menu" title="Menú">☰ Menú</button>
+        <div class="topbar-actions">
+            <button class="btn icon" data-act="toggleTheme"></button>
+            <button class="btn icon" data-act="menu" title="Menú">☰ Menú</button>
+        </div>
     </header>
 
     <div class="layout">
         <main class="card board">
             <div class="turn-banner" id="turnBanner"></div>
             <div class="category">
-                <div class="cat-label">Categoría</div>
+                <div class="cat-label" id="catTheme">Categoría</div>
                 <h2 id="catName"></h2>
             </div>
 
@@ -352,18 +456,18 @@
                     <defs>
                         <clipPath id="clipTop"><rect x="0" y="0" width="400" height="200"/></clipPath>
                         <radialGradient id="faceGrad" cx="50%" cy="100%" r="100%">
-                            <stop offset="0" stop-color="#fffdf7"/>
-                            <stop offset="1" stop-color="#efe0c6"/>
+                            <stop offset="0" stop-color="#fbf9f4"/>
+                            <stop offset="1" stop-color="#e6dfd1"/>
                         </radialGradient>
                         <linearGradient id="coverGrad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0" stop-color="#8a4dff"/>
-                            <stop offset="1" stop-color="#34108a"/>
+                            <stop offset="0" stop-color="#3a5d8f"/>
+                            <stop offset="1" stop-color="#1d3354"/>
                         </linearGradient>
                         <pattern id="coverPat" width="18" height="18" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                            <rect width="9" height="18" fill="rgba(255,255,255,0.06)"/>
+                            <rect width="9" height="18" fill="rgba(255,255,255,0.04)"/>
                         </pattern>
                     </defs>
-                    <path d="M3 200 A197 197 0 0 1 397 200 Z" fill="#2a1850"/>
+                    <path d="M3 200 A197 197 0 0 1 397 200 Z" fill="#14223a"/>
                     <path d="M12 200 A188 188 0 0 1 388 200 Z" fill="url(#faceGrad)"/>
                     <g clip-path="url(#clipTop)">
                         <g id="zone"></g>
@@ -371,16 +475,16 @@
                         <g id="cover">
                             <path d="M10 200 A190 190 0 0 1 390 200 Z" fill="url(#coverGrad)"/>
                             <path d="M10 200 A190 190 0 0 1 390 200 Z" fill="url(#coverPat)"/>
-                            <text class="cover-q" x="200" y="150">?</text>
-                            <text class="cover-t" x="200" y="178">NO MIRES</text>
+                            <text class="cover-q" x="200" y="148">?</text>
+                            <text class="cover-t" x="200" y="178">NO MIRAR</text>
                         </g>
                     </g>
-                    <rect x="0" y="199" width="400" height="23" rx="8" fill="#2a1850"/>
+                    <rect x="0" y="199" width="400" height="23" rx="6" fill="#14223a"/>
                     <g id="needle">
-                        <line x1="200" y1="200" x2="200" y2="40" stroke="#29e3c1" stroke-width="7" stroke-linecap="round"/>
-                        <circle cx="200" cy="38" r="12" fill="#29e3c1" stroke="#fff" stroke-width="3"/>
+                        <line x1="200" y1="200" x2="200" y2="40" stroke="#36b3a0" stroke-width="6" stroke-linecap="round"/>
+                        <circle cx="200" cy="38" r="11" fill="#36b3a0" stroke="#fff" stroke-width="3"/>
                     </g>
-                    <circle cx="200" cy="200" r="17" fill="#ff3c7d" stroke="#fff" stroke-width="4"/>
+                    <circle cx="200" cy="200" r="16" fill="#3d7fd6" stroke="#fff" stroke-width="4"/>
                 </svg>
                 <div class="guess-value" id="guessValue">50</div>
             </div>
@@ -391,16 +495,16 @@
 
         <aside class="side">
             <div class="card scoreboard">
-                <h3>🏅 Marcador</h3>
+                <h3>Marcador</h3>
                 <div class="score-list" id="scoreList"></div>
                 <div class="legend">
-                    <span><i style="background:var(--pink)"></i>5</span>
-                    <span><i style="background:var(--orange)"></i>3</span>
-                    <span><i style="background:var(--yellow)"></i>1</span>
+                    <span><i style="background:var(--z5)"></i>5 pts</span>
+                    <span><i style="background:var(--z3)"></i>3 pts</span>
+                    <span><i style="background:var(--z1)"></i>1 pt</span>
                 </div>
             </div>
             <details class="card history" open>
-                <summary>📜 Historial</summary>
+                <summary>Historial</summary>
                 <ol id="historyList"></ol>
             </details>
         </aside>
@@ -412,10 +516,10 @@
     <div class="end-wrap">
         <div class="trophy">🏆</div>
         <h1>¡Fin del juego!</h1>
-        <p id="winnerText" style="font-size:1.25rem"></p>
+        <p id="winnerText" style="font-size:1.2rem"></p>
         <ol class="podium" id="podium"></ol>
         <details class="card history" style="text-align:left">
-            <summary>📜 Todas las jugadas</summary>
+            <summary>Todas las jugadas</summary>
             <ol id="endHistory"></ol>
         </details>
         <button class="btn primary big" data-act="rematch">🔁 Revancha (mismas parejas)</button>
@@ -424,33 +528,158 @@
 </section>
 
 <script>
-const DEFAULT_CATS = [
-    'Comidas | Asquerosa | Deliciosa',
-    'Comidas | Saludable | Chatarra',
-    'Bebidas | Horrible | Riquísima',
-    'Postres | Liviano | Pesadísimo',
-    'Animales | Inofensivo | Peligroso',
-    'Mascotas | Pésima mascota | Mascota ideal',
-    'Películas | Aburrida | Obra maestra',
-    'Series | Mala | Adictiva',
-    'Canciones | Para llorar | Para bailar',
-    'Famosos | Desconocido | Superfamoso',
-    'Lugares | Frío | Caluroso',
-    'Vacaciones | Relajadas | De aventura',
-    'Objetos | Barato | Carísimo',
-    'Inventos | Inútil | Imprescindible',
-    'Deportes | Fácil | Difícil',
-    'Trabajos | Aburrido | Divertido',
-    'Superpoderes | Inútil | Increíble',
-    'Ropa | Informal | Elegante',
-    'Olores | Feo | Rico',
-    'Hábitos | Malo | Bueno',
-    'Regalos | Decepcionante | Soñado',
-    'Planes de cita | Desastre | Perfecto',
-].join('\n');
+const DEFAULT_CATS = `
+# 🍕 Comida y bebida
+Comidas | Desagradable | Deliciosa
+Comidas | Saludable | Chatarra
+Comidas | Para todos los días | Para ocasiones especiales
+Comidas típicas | Sobrevalorada | Subestimada
+Postres | Liviano | Pesadísimo
+Bebidas | Horrible | Riquísima
+Snacks | Aburrido | Adictivo
+Ingredientes de pizza | Aberración | Imprescindible
+Desayunos | Triste | De campeón
+Comida rápida | Me da culpa | Placer total
+Platos | Fácil de cocinar | Solo para chefs
+Comidas para una primera cita | Arriesgada | Ideal
+Sabores de helado | Nunca lo pediría | Mi favorito
+
+# ⚽ Deportes
+Deportes | Aburrido de ver | Emocionante
+Deportes | Fácil | Dificilísimo
+Deportistas | Sobrevalorado | Subestimado
+Deportistas | Antipático | Carismático
+Jugadores de fútbol | Del montón | Leyenda
+Equipos de fútbol | Aburrido | Espectacular
+Momentos deportivos | Olvidable | Histórico
+Deportes olímpicos | Nadie lo mira | Lo mira todo el mundo
+Deportes extremos | Para cualquiera | Solo para locos
+Deportes para jugar con amigos | Mala idea | Plan ideal
+Camisetas de equipos | Fea | Hermosa
+Entrenadores | Pésimo | Genio
+Rivalidades deportivas | Amistosa | Odio puro
+
+# 🎵 Música
+Canciones | Para llorar | Para bailar
+Canciones | Me da vergüenza escucharla | La escucho con orgullo
+Cantantes | Desafinado | Voz increíble
+Bandas | Pasadas de moda | Atemporales
+Géneros musicales | Insoportable | Lo mejor que hay
+Canciones para un viaje en auto | Te duerme | Te despierta
+Canciones para karaoke | Imposible | Éxito asegurado
+Instrumentos | Fácil de aprender | Imposible
+Conciertos | Me aburriría | Iría sí o sí
+Canciones del verano | Olvidable | Clásico eterno
+Artistas | Sobrevalorado | Subestimado
+Canciones para una fiesta | Mata la fiesta | La explota
+
+# 📰 Actualidad
+Noticias de la semana | Irrelevante | Importantísima
+Tendencias en redes sociales | Ridícula | Genial
+Avances tecnológicos | Moda pasajera | Llegó para quedarse
+Aplicaciones | Inútil | Imprescindible
+Influencers | Insoportable | Querible
+Usos de la inteligencia artificial | Aterrador | Maravilloso
+Trabajos del futuro | Va a desaparecer | Va a ser clave
+Redes sociales | Tóxica | Sana
+Memes | Sin gracia | Para llorar de risa
+Modas actuales | Horrible | Ícono de estilo
+Polémicas de famosos | Exagerada | Justificada
+Cosas que antes eran normales | Mejor que se fue | La extraño
+
+# 🎬 Cine y TV
+Películas | Aburrida | Obra maestra
+Películas | Para ver solo | Para ver en familia
+Series | Mala | Adictiva
+Personajes de ficción | Villano total | Héroe total
+Personajes de ficción | Insoportable | Adorable
+Finales de series | Decepcionante | Perfecto
+Películas de terror | Da risa | No dormí
+Actores y actrices | Malo | Brillante
+Dibujos animados | Para chicos | Para adultos
+Remakes | Innecesaria | Mejor que el original
+Reality shows | Vergüenza ajena | Entretenido
+Sagas | Debió terminar antes | Que no termine nunca
+
+# 👥 Personas y vida diaria
+Famosos | Desconocido | Superfamoso
+Trabajos | Aburrido | Divertido
+Profesiones | Poco valorada | Muy valorada
+Profesiones | Fácil | Durísima
+Hábitos | Malo | Bueno
+Manías | Inofensiva | Insoportable
+Cualidades en una persona | No importa | Fundamental
+Frases de abuela | Mito | Sabiduría pura
+Planes para un domingo | Pérdida de tiempo | Domingo perfecto
+Regalos | Decepcionante | Soñado
+Planes de cita | Desastre | Perfecto
+Temas de conversación | Incómodo | Fascinante
+Mentiras | Piadosa | Imperdonable
+Situaciones | Tranquila | Vergonzosísima
+Miedos | Ridículo | Totalmente razonable
+Talentos ocultos | Inútil | Impresionante
+Excusas para faltar | Increíble | Creíble
+Tareas de la casa | Tolerable | Odiosa
+
+# ✈️ Lugares y viajes
+Lugares | Frío | Caluroso
+Vacaciones | Relajadas | De aventura
+Ciudades | Para visitar | Para vivir
+Destinos turísticos | Sobrevalorado | Joya escondida
+Lugares para una primera cita | Pésimo | Ideal
+Medios de transporte | Incómodo | Comodísimo
+Lugares de la casa | Aburrido | El mejor
+Paisajes | Feo | Impresionante
+Países | Nunca iría | Me mudaría mañana
+
+# 🐾 Animales y naturaleza
+Animales | Inofensivo | Peligroso
+Animales | Feo | Tierno
+Mascotas | Pésima mascota | Mascota ideal
+Insectos | Tolerable | Pánico total
+Climas | Horrible | Ideal
+Momentos del año | Deprimente | Feliz
+Plantas | Imposible de cuidar | Indestructible
+Fenómenos naturales | Hermoso | Aterrador
+
+# 💡 Objetos y tecnología
+Objetos | Barato | Carísimo
+Objetos | Inútil | Imprescindible
+Inventos | Inútil | Imprescindible
+Aparatos electrónicos | Juguete | Herramienta indispensable
+Videojuegos | Aburrido | Adictivo
+Marcas | Pasada de moda | Moderna
+Autos | Feo | Soñado
+Ropa | Informal | Elegante
+Prendas de ropa | Incómoda | Comodísima
+Juegos de mesa | Aburrido | Divertidísimo
+Regalos tecnológicos | Decepcionante | Increíble
+
+# ✨ Sensaciones
+Olores | Feo | Rico
+Sonidos | Relajante | Insoportable
+Texturas | Desagradable | Agradable
+Sensaciones | Incómoda | Placentera
+Colores | Feo | Hermoso
+Momentos del día | Odioso | Favorito
+Cosas que dan nervios | Un poquito | Pánico total
+Placeres simples | Me da igual | Lo mejor de la vida
+
+# 🤔 Hipotéticos
+Superpoderes | Inútil | Increíble
+Superpoderes | Inofensivo | Peligroso
+Cosas para llevar a una isla desierta | Inútil | Salvavidas
+Formas de hacerse millonario | Imposible | Realista
+Personajes históricos para invitar a cenar | Aburrido | Fascinante
+Épocas para vivir | Terrible | Ideal
+Profesiones en un apocalipsis zombi | Inútil | Imprescindible
+Cosas que harías con un millón | Aburrida | Épica
+Habilidades para tener de un día para otro | Inútil | Cambia vidas
+`.trim();
+const CATS_VERSION = 3;
 
 const WIDTHS = { facil: 5, normal: 4, dificil: 3 };
-const TEAM_COLORS = ['#ff3c7d', '#29e3c1', '#ffc93c', '#7b8cff', '#ff8a3d', '#c86bff', '#5ee36b', '#ff6b6b'];
+const TEAM_COLORS = ['#5b9be6', '#e07a5f', '#3fb39a', '#e2b04a', '#9b84d6', '#d4708f', '#7cb35a', '#c98f5a'];
 const GAME_KEY = 'quimica-pareja-partida';
 const SETUP_KEY = 'quimica-pareja-config';
 const R = 186; // radio de la zona en el SVG (centro 200,200)
@@ -465,8 +694,13 @@ function store(key, v) { try { v === null ? localStorage.removeItem(key) : local
 /* ==================== CONFIGURACIÓN ==================== */
 let setup = load(SETUP_KEY) || {
     teams: [{ name: '', a: '', b: '' }, { name: '', a: '', b: '' }],
-    rounds: 4, goal: 0, diff: 'normal', cats: DEFAULT_CATS,
+    rounds: 4, goal: 0, diff: 'normal',
 };
+if (setup.catsVersion !== CATS_VERSION) {
+    setup.cats = DEFAULT_CATS;
+    setup.catsVersion = CATS_VERSION;
+    setup.offThemes = [];
+}
 const saveSetup = () => store(SETUP_KEY, setup);
 
 function renderTeamList() {
@@ -479,12 +713,24 @@ function renderTeamList() {
         </div>`).join('');
 }
 
+function renderThemes() {
+    const cats = parseCats(setup.cats);
+    const counts = {};
+    cats.forEach(c => counts[c.theme] = (counts[c.theme] || 0) + 1);
+    const themes = Object.keys(counts);
+    $('#themeChips').innerHTML = themes.map(t => `
+        <button class="chip ${setup.offThemes.includes(t) ? '' : 'on'}" data-act="theme" data-t="${esc(t)}">${esc(t)}<small>${counts[t]}</small></button>`).join('');
+    const active = cats.filter(c => !setup.offThemes.includes(c.theme)).length;
+    $('#themeInfo').textContent = `${active} de ${cats.length} categorías activas. Se mezclan al azar en cada partida.`;
+}
+
 function renderSetup() {
     renderTeamList();
     $('#roundsOut').textContent = `${setup.rounds} ${setup.rounds === 1 ? 'ronda' : 'rondas'}`;
     $('#goalOut').textContent = setup.goal ? `${setup.goal} pts` : 'Sin límite';
     document.querySelectorAll('#diffSeg .btn').forEach(b => b.classList.toggle('on', b.dataset.v === setup.diff));
     $('#catsText').value = setup.cats;
+    renderThemes();
 
     const saved = load(GAME_KEY);
     $('#resumeBox').classList.toggle('hidden', !saved || saved.phase === 'end');
@@ -500,13 +746,17 @@ $('#teamList').addEventListener('input', e => {
     setup.teams[i][f] = e.target.value;
     saveSetup();
 });
-$('#catsText').addEventListener('input', e => { setup.cats = e.target.value; saveSetup(); });
+$('#catsText').addEventListener('input', e => { setup.cats = e.target.value; saveSetup(); renderThemes(); });
 
 function parseCats(text) {
-    return text.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    let theme = 'General';
+    const cats = [];
+    text.split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
+        if (l.startsWith('#')) { theme = l.slice(1).trim() || 'General'; return; }
         const [name, left = '', right = ''] = l.split('|').map(s => s.trim());
-        return { name, left, right };
-    }).filter(c => c.name);
+        if (name) cats.push({ name, left, right, theme });
+    });
+    return cats;
 }
 
 /* ==================== ESTADO DEL JUEGO ==================== */
@@ -515,8 +765,9 @@ let needleVal = 50;    // posición de la aguja (0-100)
 let dragging = false;
 
 function newGame(teams) {
-    let cats = parseCats(setup.cats);
-    if (!cats.length) cats = parseCats(DEFAULT_CATS);
+    const all = parseCats(setup.cats);
+    let cats = all.filter(c => !setup.offThemes.includes(c.theme));
+    if (!cats.length) cats = all.length ? all : parseCats(DEFAULT_CATS);
     S = {
         teams: teams.map(t => ({ name: t.name, players: t.players, score: 0 })),
         rounds: setup.rounds,
@@ -543,6 +794,7 @@ function shuffle(a) {
     return a;
 }
 
+// El mazo se mezcla al empezar cada partida y no repite hasta agotarse
 function drawCategory() {
     if (!S.deck.length) S.deck = shuffle([...S.cats.keys()]);
     return S.cats[S.deck.pop()];
@@ -664,6 +916,7 @@ function renderGame() {
         <span class="role">🎯 Adivina: <b>${esc(t.guesser)}</b></span>`;
 
     const cat = S.category;
+    $('#catTheme').textContent = cat.theme || 'Categoría';
     $('#catName').textContent = cat.name;
     $('#endL').textContent = '0' + (cat.left ? ` · ${cat.left}` : '');
     $('#endR').textContent = (cat.right ? `${cat.right} · ` : '') + '100';
@@ -687,15 +940,19 @@ function renderPhase(t) {
     let html = '';
     switch (S.phase) {
         case 'ready':
+            // La categoría es la misma para todas las parejas de la ronda:
+            // solo se puede cambiar antes de que juegue la primera.
             html = `<p>📱 ${P}, tomá el dispositivo y girá la ruleta.</p>
                 <p class="warn">🙈 ${G}, ¡no mires la pantalla!</p>
                 <div class="actions">
                     <button class="btn primary big" data-act="spin">🎡 Girar ruleta</button>
-                    <button class="btn" data-act="reroll">🔄 Cambiar categoría</button>
+                    ${S.teamIdx === 0
+                        ? '<button class="btn" data-act="reroll">🔄 Cambiar categoría</button>'
+                        : '<p class="same-cat">Misma categoría para todas las parejas en esta ronda.</p>'}
                 </div>`;
             break;
         case 'spinning':
-            html = `<p class="hint">Girando… 🎡</p>
+            html = `<p class="hint">Girando…</p>
                 <div class="actions"><button class="btn primary big" disabled>🎡 Girando…</button></div>`;
             break;
         case 'memorize':
@@ -714,7 +971,7 @@ function renderPhase(t) {
             break;
         case 'reveal': {
             const last = S.history[S.history.length - 1];
-            const msgs = { 5: '¡Conexión total! 🔥', 3: '¡Muy cerca! 😍', 1: 'Por poquito… 😅', 0: 'Cero química… 💔' };
+            const msgs = { 5: '¡Sintonía total! 🤝', 3: '¡Muy cerca! 👏', 1: 'Por poquito… 😅', 0: 'Esta vez no hubo sintonía 🤷' };
             html = `<div class="result pts-${last.pts}">
                     <div class="pts">+${last.pts}</div>
                     <div class="msg">${msgs[last.pts]}</div>
@@ -734,12 +991,17 @@ function renderPhase(t) {
 function renderScores(bumpIdx = -1) {
     const max = Math.max(...S.teams.map(t => t.score));
     const leaders = S.teams.filter(t => t.score === max).length;
-    $('#scoreList').innerHTML = S.teams.map((t, i) => {
+    // Ordenado de mayor a menor puntaje; en empate se mantiene el orden original
+    const order = S.teams.map((t, i) => i).sort((a, b) => S.teams[b].score - S.teams[a].score || a - b);
+    let pos = 0;
+    $('#scoreList').innerHTML = order.map((i, idx) => {
+        const t = S.teams[i];
+        if (idx === 0 || t.score !== S.teams[order[idx - 1]].score) pos = idx + 1;
         const p = (S.round - 1) % 2;
         const crown = S.teams.length > 1 && max > 0 && t.score === max && leaders === 1 ? ' 👑' : '';
         return `<div class="score-item ${i === S.teamIdx ? 'current' : ''}" style="--c:${color(i)}">
             <div class="score-top">
-                <span class="score-name">${esc(t.name)}${crown}</span>
+                <span class="score-name">${S.teams.length > 1 ? `<span class="rank">${pos}°</span>` : ''}${esc(t.name)}${crown}</span>
                 <span class="score-num ${i === bumpIdx ? 'bump' : ''}">${t.score}</span>
             </div>
             <div class="score-players">🎡 ${esc(t.players[p])} · 🎯 ${esc(t.players[1 - p])}</div>
@@ -776,7 +1038,15 @@ const actions = {
         saveSetup(); renderSetup();
     },
     diff(b) { setup.diff = b.dataset.v; saveSetup(); renderSetup(); },
-    resetCats() { setup.cats = DEFAULT_CATS; saveSetup(); $('#catsText').value = DEFAULT_CATS; },
+    theme(b) {
+        const t = b.dataset.t;
+        setup.offThemes = setup.offThemes.includes(t) ? setup.offThemes.filter(x => x !== t) : [...setup.offThemes, t];
+        saveSetup(); renderThemes();
+    },
+    resetCats() {
+        setup.cats = DEFAULT_CATS; setup.offThemes = [];
+        saveSetup(); $('#catsText').value = DEFAULT_CATS; renderThemes();
+    },
     start() {
         const saved = load(GAME_KEY);
         if (saved && saved.phase !== 'end' && !confirm('Hay una partida en curso. ¿Empezar una nueva y descartarla?')) return;
@@ -791,7 +1061,10 @@ const actions = {
     },
 
     // --- turno ---
-    reroll() { S.category = drawCategory(); save(); renderGame(); },
+    reroll() {
+        if (S.teamIdx !== 0) return;
+        S.category = drawCategory(); save(); renderGame();
+    },
     spin() {
         const w = S.width, margin = Math.ceil(2.5 * w);
         S.target = margin + Math.floor(Math.random() * (101 - 2 * margin));
@@ -828,9 +1101,11 @@ const actions = {
     next() {
         if (isLastTurn()) return finish();
         S.teamIdx++;
-        if (S.teamIdx >= S.teams.length) { S.teamIdx = 0; S.round++; }
+        if (S.teamIdx >= S.teams.length) {
+            S.teamIdx = 0; S.round++;
+            S.category = drawCategory(); // nueva categoría solo al empezar la ronda
+        }
         S.phase = 'ready';
-        S.category = drawCategory();
         S.clue = ''; S.target = null; S.guess = null;
         needleVal = 50;
         save(); renderGame();
@@ -838,6 +1113,11 @@ const actions = {
     },
 
     // --- navegación ---
+    toggleTheme() {
+        const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(THEME_KEY, t); } catch {}
+        applyTheme(t);
+    },
     menu() {
         if (S.phase === 'spinning') return;
         save();
@@ -872,7 +1152,7 @@ function finish() {
     } else if (winners.length > 1) {
         $('#winnerText').innerHTML = `¡Empate entre ${winners.map(w => `<b>${esc(w.name)}</b>`).join(' y ')} con ${top} puntos!`;
     } else {
-        $('#winnerText').innerHTML = `¡Gana <b>${esc(winners[0].name)}</b> con ${top} puntos! 💞`;
+        $('#winnerText').innerHTML = `¡Gana <b>${esc(winners[0].name)}</b> con ${top} puntos! 🤝`;
     }
 
     let pos = 0;
@@ -884,8 +1164,8 @@ function finish() {
         return `<li class="${pos === 0 ? 'first' : ''}" style="--c:${color(t.i)}">
             <span class="pos">${medals[pos] || pos + 1}</span>
             <div class="info">
-                <b>${esc(t.name)}</b> <span class="sub">(${esc(t.players.join(' & '))})</span>
-                <div class="stats">🔥 ${perfect} perfectas · 📏 desvío promedio ${avg}</div>
+                <b>${esc(t.name)}</b> <span class="sub">(${esc(t.players.join(' y '))})</span>
+                <div class="stats">🎯 ${perfect} perfectas · 📏 desvío promedio ${avg}</div>
             </div>
             <span class="big">${t.score}</span>
         </li>`;
@@ -893,11 +1173,11 @@ function finish() {
 
     renderHistory($('#endHistory'));
     show('end');
-    confetti(140);
+    confetti(120);
 }
 
 function confetti(n) {
-    const colors = ['#ff3c7d', '#ffc93c', '#29e3c1', '#7b3cff', '#ff8a3d', '#fff'];
+    const colors = ['#5b9be6', '#e2b04a', '#3fb39a', '#e07a5f', '#d64545', '#ffffff'];
     for (let i = 0; i < n; i++) {
         const c = document.createElement('div');
         c.className = 'confetti';
@@ -911,7 +1191,19 @@ function confetti(n) {
     }
 }
 
+/* ==================== TEMA CLARO / OSCURO ==================== */
+const THEME_KEY = 'quimica-pareja-tema';
+
+function applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.querySelectorAll('[data-act="toggleTheme"]').forEach(b => {
+        b.textContent = t === 'light' ? '🌙' : '☀️';
+        b.title = t === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro';
+    });
+}
+
 /* ==================== INICIO ==================== */
+applyTheme(document.documentElement.dataset.theme || 'dark');
 buildTicks();
 renderSetup();
 </script>
