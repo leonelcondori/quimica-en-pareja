@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Química en Pareja</title>
+<meta name="theme-color" content="#040a17">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Química">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icono.svg" type="image/svg+xml">
 <script>
     // Aplicar el tema antes de pintar para evitar parpadeo
     (function () {
@@ -88,7 +95,11 @@
         -webkit-tap-highlight-color: transparent;
     }
     .hidden { display: none !important; }
-    .screen { max-width: 1060px; margin: 0 auto; padding: 16px 16px 40px; }
+    .screen {
+        max-width: 1060px; margin: 0 auto;
+        padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+    :root:fullscreen { background: var(--bg1); }
 
     h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
     p { margin: 0; }
@@ -121,7 +132,8 @@
     .btn.big { font-size: 1.08rem; padding: 14px 20px; width: 100%; }
     .btn.ghost { background: transparent; border: 1px dashed var(--border-strong); }
     .btn.icon { padding: 8px 12px; }
-    .setup-top { display: flex; justify-content: flex-end; max-width: 640px; margin: 0 auto; }
+    .setup-top { display: flex; justify-content: flex-end; gap: 8px; max-width: 640px; margin: 0 auto; }
+    .btn.icon svg { width: 18px; height: 18px; vertical-align: -3px; }
     .topbar-actions { display: flex; gap: 8px; }
 
     /* ---------- Setup ---------- */
@@ -346,7 +358,10 @@
 
 <!-- ================= CONFIGURACIÓN ================= -->
 <section id="setup" class="screen">
-    <div class="setup-top"><button class="btn icon" data-act="toggleTheme"></button></div>
+    <div class="setup-top">
+        <button class="btn icon hidden" data-act="fullscreen"></button>
+        <button class="btn icon" data-act="toggleTheme"></button>
+    </div>
     <div class="hero">
         <div class="logo" aria-hidden="true">
             <span class="fist l">🤜</span><span class="fist r">🤛</span><span class="spark">💥</span>
@@ -438,6 +453,7 @@
             <div class="progress"><div id="progressBar"></div></div>
         </div>
         <div class="topbar-actions">
+            <button class="btn icon hidden" data-act="fullscreen"></button>
             <button class="btn icon" data-act="toggleTheme"></button>
             <button class="btn icon" data-act="menu" title="Menú">☰ Menú</button>
         </div>
@@ -1113,6 +1129,12 @@ const actions = {
     },
 
     // --- navegación ---
+    fullscreen() {
+        const req = isFullscreen()
+            ? (document.exitFullscreen || document.webkitExitFullscreen).call(document)
+            : (rootEl.requestFullscreen || rootEl.webkitRequestFullscreen).call(rootEl);
+        Promise.resolve(req).catch(() => {});
+    },
     toggleTheme() {
         const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
         try { localStorage.setItem(THEME_KEY, t); } catch {}
@@ -1202,7 +1224,27 @@ function applyTheme(t) {
     });
 }
 
+/* ==================== PANTALLA COMPLETA ==================== */
+// iPhone no soporta la API: ahí el botón queda oculto (se usa "Agregar a inicio")
+const rootEl = document.documentElement;
+const canFullscreen = !!(rootEl.requestFullscreen || rootEl.webkitRequestFullscreen);
+const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+const ICON_EXPAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const ICON_COMPRESS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+
+function updateFullscreenButtons() {
+    const fs = isFullscreen();
+    document.querySelectorAll('[data-act="fullscreen"]').forEach(b => {
+        b.classList.toggle('hidden', !canFullscreen);
+        b.innerHTML = fs ? ICON_COMPRESS : ICON_EXPAND;
+        b.title = fs ? 'Salir de pantalla completa' : 'Pantalla completa';
+    });
+}
+document.addEventListener('fullscreenchange', updateFullscreenButtons);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButtons);
+
 /* ==================== INICIO ==================== */
+updateFullscreenButtons();
 applyTheme(document.documentElement.dataset.theme || 'dark');
 buildTicks();
 renderSetup();

@@ -1,0 +1,14 @@
+{
+  "name": "Química en Pareja",
+  "short_name": "Química",
+  "description": "El juego de la sintonía para jugar en parejas.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#040a17",
+  "theme_color": "#040a17",
+  "icons": [
+    { "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
