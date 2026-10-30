@@ -436,6 +436,7 @@
                 <li>Cierra la tapa y dice algo de esa categoría que crea que encaja en esa posición.</li>
                 <li>Su pareja <b>mueve la aguja</b> hasta donde cree que va y confirma.</li>
                 <li>Se abre la tapa: centro <b>5 pts</b>, al lado <b>3 pts</b>, bordes <b>1 pt</b>, afuera 0.</li>
+                <li>Los extremos están unidos: si la zona se corta en un borde, <b>continúa del otro lado</b>. Así puede tocar justo el 0 o el 100, o quedar mitad y mitad.</li>
                 <li>En la siguiente ronda los roles se invierten. ¡Gana la pareja con más puntos!</li>
             </ol>
         </details>
@@ -822,6 +823,15 @@ function turn() {
     return { team, color: color(S.teamIdx), psychic: team.players[p], guesser: team.players[1 - p] };
 }
 
+// Distancia en la escala circular: 0 y 100 son el mismo punto
+function circDist(a, b) {
+    const d = Math.abs(a - b) % 100;
+    return Math.min(d, 100 - d);
+}
+
+// La zona cruza el borde y aparece partida entre los dos extremos
+const zoneWraps = () => circDist(S.target, 0) < 2.5 * S.width;
+
 function scoreFor(dist) {
     const w = S.width;
     if (dist <= w / 2) return 5;
@@ -854,7 +864,9 @@ function buildZone() {
         const p = pt(50 + k * w, 160);
         html += `<text class="zlabel" x="${p.x}" y="${p.y}" transform="rotate(${k * w * 1.8} ${p.x} ${p.y})">${pts[k + 2]}</text>`;
     }
-    zone.innerHTML = html;
+    // Dos copias opuestas en el disco: lo que sale por un extremo de la media
+    // ruleta entra por el otro (la escala es circular, el 100 se une con el 0)
+    zone.innerHTML = `<g>${html}</g><g transform="rotate(180 200 200)">${html}</g>`;
 }
 
 function buildTicks() {
@@ -973,6 +985,7 @@ function renderPhase(t) {
             break;
         case 'memorize':
             html = `<p>${P}, memorizá dónde quedó la zona y pensá algo de <b>${esc(S.category.name.toLowerCase())}</b> que encaje ahí.</p>
+                ${zoneWraps() ? '<p class="warn">↔️ La zona quedó partida: sigue del otro lado. Sirve algo cercano al 0 o al 100.</p>' : ''}
                 <label class="field"><span>Tu pista (opcional, la verá ${esc(t.guesser)})</span>
                     <input type="text" id="clueInput" maxlength="60" placeholder="Ej: pizza" autocomplete="off"></label>
                 <div class="actions"><button class="btn primary big" data-act="hide">🙈 Cerrar tapa y pasarle a ${esc(t.guesser)}</button></div>`;
@@ -991,7 +1004,7 @@ function renderPhase(t) {
             html = `<div class="result pts-${last.pts}">
                     <div class="pts">+${last.pts}</div>
                     <div class="msg">${msgs[last.pts]}</div>
-                    <div class="detail">Objetivo: <b>${last.target}</b> · Respuesta: <b>${last.guess}</b> · Diferencia: ${Math.abs(last.target - last.guess)}</div>
+                    <div class="detail">Objetivo: <b>${last.target === 0 ? '0 / 100' : last.target}</b> · Respuesta: <b>${last.guess}</b> · Diferencia: ${circDist(last.target, last.guess)}</div>
                 </div>
                 <div class="actions"><button class="btn primary big" data-act="next">${isLastTurn() ? '🏆 Ver resultados' : '➡️ Siguiente turno'}</button></div>`;
             break;
@@ -1082,8 +1095,7 @@ const actions = {
         S.category = drawCategory(); save(); renderGame();
     },
     spin() {
-        const w = S.width, margin = Math.ceil(2.5 * w);
-        S.target = margin + Math.floor(Math.random() * (101 - 2 * margin));
+        S.target = Math.floor(Math.random() * 100); // 0 equivale a 100
         const base = (S.target - 50) * 1.8;
         const turns = 3 + Math.floor(Math.random() * 3);
         S.zoneRot = base + 360 * (Math.ceil((S.zoneRot - base) / 360) + turns);
@@ -1101,7 +1113,7 @@ const actions = {
     confirm() {
         const t = turn();
         const guess = Math.round(needleVal);
-        const pts = scoreFor(Math.abs(guess - S.target));
+        const pts = scoreFor(circDist(guess, S.target));
         S.guess = guess;
         t.team.score += pts;
         S.history.push({
@@ -1182,7 +1194,7 @@ function finish() {
         if (idx === 0 || t.score !== ranked[idx - 1].score) pos = idx;
         const plays = S.history.filter(h => h.teamIdx === t.i);
         const perfect = plays.filter(h => h.pts === 5).length;
-        const avg = plays.length ? (plays.reduce((s, h) => s + Math.abs(h.target - h.guess), 0) / plays.length).toFixed(1) : '–';
+        const avg = plays.length ? (plays.reduce((s, h) => s + circDist(h.target, h.guess), 0) / plays.length).toFixed(1) : '–';
         return `<li class="${pos === 0 ? 'first' : ''}" style="--c:${color(t.i)}">
             <span class="pos">${medals[pos] || pos + 1}</span>
             <div class="info">
